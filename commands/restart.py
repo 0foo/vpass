@@ -1,4 +1,4 @@
 import os
 
 def run(machine_name):
-    pass
+    os.system(f'VBoxManage controlvm {machine_name} restart')

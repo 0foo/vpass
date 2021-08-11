@@ -1,7 +1,7 @@
 ### About
 
-* Vagrant is great but requires navigating to the folder when you want to mess with a VM
-* multipass is great but stashes the VM's it creates in weird places that aren't easily portable
+* Vagrant is great but requires navigating to the folder with the Vagrantfile when you want to work with a VM
+* multipass is great but stashes the VM's it creates in weird places on the file system that aren't easily portable
 * Combine the two to have vpass
 * A very light wrapper around vagrant allowing control of VM's from anywhere on the command line.
 

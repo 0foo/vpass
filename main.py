@@ -45,7 +45,7 @@ if command == 'launch':
 
 if command == 'list':
     print("Vagrant status.")
-    os.system(f'vagrant global-status')
+    # os.system(f'vagrant global-status')
     dirs = os.listdir(machines_dir)
     print("\n\nMachines")
     print("------")

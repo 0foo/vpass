@@ -21,5 +21,5 @@ vpass suspend cocky-wozniak
 vpass up cocky-wozniak
 vpass destroy cocky-wozniak
 ```
-
+* view all of the vpass machines with vpass list
 * Any regular vagrant commands will work with vpass, just pass in the machine name instead of navigating to the directory with the Vagrantfile.

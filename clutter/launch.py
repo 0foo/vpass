@@ -34,7 +34,7 @@ def run():
     commands = [
         f'VBoxManage createvm --name {machine_name} --ostype "Debian_64" --register --basefolder {vpass_home_dir}',
         f'VBoxManage modifyvm {machine_name} --ioapic on',
-        f'VBoxManage modifyvm {machine_name} --memory 1024 --vram 128',
+        f'VBoxManage modifyvm {machine_name} --memory 1024 --vram 128 --graphicscontroller vmsvga',
         f'VBoxManage modifyvm {machine_name} --nic1 nat',
         f'VBoxManage createhd --filename {vpass_home_dir}/{machine_name}/{machine_name}_DISK.vdi --size 80000 --format VDI',
         f'VBoxManage storagectl {machine_name} --name "SATA Controller" --add sata --controller IntelAhci',
@@ -42,6 +42,7 @@ def run():
         f'VBoxManage storagectl {machine_name} --name "IDE Controller" --add ide --controller PIIX4',
         f'VBoxManage storageattach {machine_name} --storagectl "IDE Controller" --port 1 --device 0 --type dvddrive --medium {vpass_home_dir}/iso_files/{iso_name}',
         f'VBoxManage modifyvm {machine_name} --boot1 dvd --boot2 disk --boot3 none --boot4 none',
+        f'VBoxManage storageattach {machine_name} --storagectl "IDE Controller" --port 1 --device 1 --type dvddrive --medium ./configs/vpass-base.iso',
     ]
 
     print(f"Creating {machine_name}")
@@ -49,7 +50,7 @@ def run():
         # print(command)
         os.system(command)
 
-    os.system(f'VBoxManage startvm {machine_name} --type headless')
+    # os.system(f'VBoxManage startvm {machine_name} --type headless')
     print(f"{machine_name} created and started.")
 
 

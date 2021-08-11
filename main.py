@@ -1,100 +1,123 @@
-import sys
-from commands import help, launch, delete, list_em, status, stop, restart, start, suspend, shell, mount
+import os, argparse, shutil
+import random_names
+from pathlib import Path
 
-# Empty condition for arguments(sys.argv always has script name as first item in the param list.)
+# pars args
+parser = argparse.ArgumentParser(add_help=False)
+parser.add_argument("command", type=str, nargs='?')
+parser.add_argument("machine", type=str, nargs='?')
+parser.add_argument("flags", type=str, nargs='*')
+args = parser.parse_args()
 
+# arguments
+command=args.command
+machine_name=args.machine
+flags=args.flags
 
-flag = None
+# directories
+home_dir = str(Path.home())
+app_root_dir = str(Path.cwd())
+vpass_home_dir = os.path.join(home_dir, 'vpass')
+machines_dir = os.path.join(vpass_home_dir, 'machines')
+vpass_config_file = os.path.join(vpass_home_dir, 'vpass_config.yaml')
 
-if len(sys.argv) > 2:
-    flag = sys.argv[2]
+if not os.path.exists(vpass_home_dir):
+    print(f"Creating {vpass_home_dir}")
+    os.makedirs(vpass_home_dir)
 
-command_list = {
-    'launch': {
-        'description': 'Create and start an Ubuntu instance',
-        'exec': [
-            'launch.run()',
-            {'launch': launch}
-        ]
-    },
-    'list': {
-        'description': 'List all available instances.',
-        'exec': [
-            'list_em.run()',
-            {'list_em': list_em}
-        ]
-    },
-    'delete': {
-        'description': 'Delete an instance.',
-        'exec': [
-            'delete.run(flag)',
-            {'delete': delete, 'flag': flag}
-        ]
-    },
-    'status': {
-        'description': 'Get the status of an instance.',
-        'exec': [
-            'status.run(flag)',
-            {'status': status, 'flag': flag}
-        ]
-    },
-    'stop': {
-        'description': 'Stop instances',
-        'exec': [
-            'stop.run(flag)',
-            {'stop': stop, 'flag': flag}
-        ]
-    },
-    'restart': {
-        'description': 'Restart instances',
-        'exec':[
-            'restart.run(flag)',
-            {'restart': restart, 'flag': flag}
-        ]
-    },
-    'start': {
-        'description': 'Start instances',
-        'exec': [
-            'start.run(flag)',
-            {'start': start, 'flag': flag}
-        ]
-    },
-    'suspend': {
-        'description': 'Suspend running instances',
-        'exec': [
-            'suspend.run(flag)',
-            {'suspend': suspend, 'flag': flag}
-        ]
-    },
-    'shell': {
-        'description': 'Open a shell on a running instance.',
-        'exec': [
-            'shell.run(flag)',
-            {'shell': shell, 'flag': flag}
-        ]
-    },
-    'mount': {
-        'description': 'Mount a local directory in the instance..',
-        'exec': [
-            'mount.run(flag)',
-            {'mount': mount, 'flag': flag}
-        ]
+if not os.path.exists(machines_dir):
+    print(f"Creating {machines_dir}")
+    os.makedirs(machines_dir)
+
+if command == 'launch':
+    new_machine_dir = os.path.join(machines_dir, random_names.run())
+    if not os.path.exists(new_machine_dir):
+        print(f"Creating {new_machine_dir}")
+        os.makedirs(new_machine_dir)
+        os.chdir(new_machine_dir)
+        os.system(f'VBoxManage setproperty machinefolder {new_machine_dir}')
+        os.system(f'vagrant init ubuntu/hirsute64')
+        os.system('vagrant up')
+        os.system('VBoxManage setproperty machinefolder default')
+    else:
+        print("A naming collision occurred. Please rerun the command.")
+    exit()
+
+if command == 'list':
+    print("Vagrant status.")
+    os.system(f'vagrant global-status')
+    dirs = os.listdir(machines_dir)
+    print("\n\nMachines")
+    print("------")
+    for dir in dirs:
+        if os.path.isdir(os.path.join(machines_dir, dir)):
+            print(dir)
+    exit()
+
+if command == 'destroy':
+    the_machine_dir = os.path.join(machines_dir, machine_name)
+    if os.path.exists(the_machine_dir):
+        os.chdir(the_machine_dir)
+        os.system(f'vagrant destroy -f')
+        try:
+            shutil.rmtree(the_machine_dir, ignore_errors=True)
+        except OSError as e:
+            print("Error: %s : %s" % (the_machine_dir, e.strerror))
+    else:
+        print(f"Can't find machine by the name of {machine_name}")
+    exit()
+
+if command is None or command == 'help':
+    options = {
+
     }
-}
 
-if len(sys.argv) <= 1 or sys.argv[1] in ['-h', '--help', 'help']:
-    help.run(command_list)
+    help_text = '''
+    A very light wrapper around vagrant allowing control of VM\'s from anywhere on the command line.
+    Simply replace the command vagrant with the command vpass and pass in a machine name, no need to manually navigate to the machines folder.
+    The config files for each  machine are found at <home directory>/vpass/machines and can be changed after creation to customize the vm.
+    Inspired by Ubuntu multipass.
+    
+    
+    Usage: vpass <command> <machine> [options]
+    
+    Commands
+    -------
+    launch: launches a new instance
+    list: lists all instances available with vpass
+    destroy: destroys the instance
+    
+    Examples: 
+    vpass launch 
+    vpass list
+    vpass ssh cocky-wozniak
+    vpass suspend cocky-wozniak
+    vpass up cocky-wozniak
+    vpass destroy cocky-wozniak
+    
+    
+    Any regular vagrant commands will work with vpass without the need to manually navigate to the machines directory.
+    
+    '''
+    print(help_text)
     exit()
 
-command = sys.argv[1]
 
-if command in command_list and 'flag' in command_list[command]['exec'][1] and not flag:
-    print("Please enter a machine name. Use the 'list' command to get a list of machines.")
-    exit()
 
-if command in command_list:
-    exec(*command_list[command]['exec'])
+the_machine_dir = os.path.join(machines_dir, machine_name)
+if os.path.exists(the_machine_dir):
+    os.chdir(the_machine_dir)
+    if len(flags) == 0:
+        flags = ""
+    print(f'vagrant {command} {flags}')
+    print(machine_name)
+    os.system(f'vagrant {command} {flags}')
 else:
-    print("Command not found.")
+    print(f"Can't find machine by the name of {machine_name}")
+
+
+
+
+
 
 

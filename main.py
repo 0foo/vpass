@@ -33,7 +33,7 @@ def list():
     os.system('VBoxManage list runningvms')
     print("\n")
     # Vpass machines
-    print("Vpass Managed Machines")
+    print("Vpass Managed Machines(can use vpass specific commands and shortcuts.)")
     print("------")
     dirs = os.listdir(machines_dir)
     for dir in dirs:
@@ -118,10 +118,19 @@ if command == 'help':
     Usage: vpass <command> <machine> [options]
     
     Commands
-    -------
+    -------------
+    
+    Vpass Specific
+    --------------
     launch: launches a new instance
     list: lists all instances available with vpass
-    destroy: destroys the instance
+    destroy/delete: destroys the instance
+    start: start VM
+    stop: stop the VM
+    
+    
+    Any regular vagrant commands will work with vpass without the need to manually navigate to the machines directory.
+
     
     Examples: 
     vpass launch 
@@ -132,7 +141,6 @@ if command == 'help':
     vpass destroy cocky-wozniak
     
     
-    Any regular vagrant commands will work with vpass without the need to manually navigate to the machines directory.
     
     '''
     print(help_text)

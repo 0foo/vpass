@@ -33,7 +33,7 @@ def list():
     os.system('VBoxManage list runningvms')
     print("\n")
     # Vpass machines
-    print("Vpass Created Machines")
+    print("Vpass Managed Machines")
     print("------")
     dirs = os.listdir(machines_dir)
     for dir in dirs:
@@ -52,7 +52,11 @@ if not os.path.exists(machines_dir):
     os.makedirs(machines_dir)
 
 if command == 'launch':
-    new_machine_dir = os.path.join(machines_dir, random_names.run())
+    if machine_name is None:
+        new_machine_dir = os.path.join(machines_dir, random_names.run())
+    else:
+        new_machine_dir = os.path.join(machines_dir, machine_name)
+
     if not os.path.exists(new_machine_dir):
         print(f"Creating {new_machine_dir}")
         os.makedirs(new_machine_dir)
@@ -62,22 +66,31 @@ if command == 'launch':
         os.system('vagrant up')
         os.system('VBoxManage setproperty machinefolder default')
     else:
-        print("A naming collision occurred. Please rerun the command.")
+        print("A very rare naming collision occurred. Please rerun the command.")
     exit()
 
-
 if command == 'start':
-    os.system(f'VBoxManage startvm {machine_name} --type headless')
+    the_machine_dir = os.path.join(machines_dir, machine_name)
+    if os.path.exists(the_machine_dir):
+        os.chdir(the_machine_dir)
+        os.system('vagrant up')
+    else:
+        os.system(f'VBoxManage startvm {machine_name} --type headless')
     exit()
 
 if command == 'stop':
-    os.system(f'VBoxManage controlvm {machine_name} savestate')
+    the_machine_dir = os.path.join(machines_dir, machine_name)
+    if os.path.exists(the_machine_dir):
+        os.chdir(the_machine_dir)
+        os.system('vagrant halt')
+    else:
+        os.system(f'VBoxManage controlvm {machine_name} savestate')
     exit()
 
 if  command is None or command == 'list':
     list()
 
-if command == 'destroy':
+if command == 'destroy' or command == 'delete':
     the_machine_dir = os.path.join(machines_dir, machine_name)
     if os.path.exists(the_machine_dir):
         os.chdir(the_machine_dir)

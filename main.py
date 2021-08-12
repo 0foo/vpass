@@ -117,11 +117,8 @@ if command == 'help':
     
     Usage: vpass <command> <machine> [options]
     
-    Commands
-    -------------
-    
-    Vpass Specific
-    --------------
+    Vpass Specific Commands
+    -------------------------
     launch: launches a new instance
     list: lists all instances available with vpass
     destroy/delete: destroys the instance

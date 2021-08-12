@@ -21,6 +21,28 @@ vpass_home_dir = os.path.join(home_dir, 'vpass')
 machines_dir = os.path.join(vpass_home_dir, 'machines')
 vpass_config_file = os.path.join(vpass_home_dir, 'vpass_config.yaml')
 
+def list():
+    # All Virtualbox machines
+    print("")
+    print("All Virtual Box Machines")
+    print("------")
+    os.system('VBoxManage list vms')
+    print("\n")
+    print("All Virtual Box Running Machines")
+    print("------")
+    os.system('VBoxManage list runningvms')
+    print("\n")
+    # Vpass machines
+    print("Vpass Created Machines")
+    print("------")
+    dirs = os.listdir(machines_dir)
+    for dir in dirs:
+        if os.path.isdir(os.path.join(machines_dir, dir)):
+            print(dir)
+    print("\n")
+    exit()
+
+
 if not os.path.exists(vpass_home_dir):
     print(f"Creating {vpass_home_dir}")
     os.makedirs(vpass_home_dir)
@@ -43,16 +65,17 @@ if command == 'launch':
         print("A naming collision occurred. Please rerun the command.")
     exit()
 
-if command == 'list':
-    print("Vagrant status.")
-    # os.system(f'vagrant global-status')
-    dirs = os.listdir(machines_dir)
-    print("\n\nMachines")
-    print("------")
-    for dir in dirs:
-        if os.path.isdir(os.path.join(machines_dir, dir)):
-            print(dir)
+
+if command == 'start':
+    os.system(f'VBoxManage startvm {machine_name} --type headless')
     exit()
+
+if command == 'stop':
+    os.system(f'VBoxManage controlvm {machine_name} savestate')
+    exit()
+
+if  command is None or command == 'list':
+    list()
 
 if command == 'destroy':
     the_machine_dir = os.path.join(machines_dir, machine_name)
@@ -67,7 +90,7 @@ if command == 'destroy':
         print(f"Can't find machine by the name of {machine_name}")
     exit()
 
-if command is None or command == 'help':
+if command == 'help':
     options = {
 
     }

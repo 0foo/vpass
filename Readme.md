@@ -3,7 +3,7 @@
 * Vagrant is great but requires navigating to the folder with the Vagrantfile when you want to work with a VM
 * multipass is great but stashes the VM's it creates in weird places on the file system that aren't easily portable
 * Combine the two to have vpass
-* A very light wrapper around vagrant and virtual box allowing control of VM's from anywhere on the command line.
+* A very light wrapper around vagrant and virtual box allowing control of VM's from anywhere on the command line and some additional functionality as well.
 * I `think` this works on Windows, all of the code was written to be portable, but hasn't been tested on windows, so there may or may not be a bug.
 
 
